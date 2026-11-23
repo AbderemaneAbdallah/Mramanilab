@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Modifier un défi · M'ramani_Lab{% endblock %}
+{% block content %}
+<header class="page-heading compact-heading">
+    <div><p class="section-kicker">Administration · Défis</p><h1>Modifier un défi</h1>
+    <p>Mettez à jour les informations, puis enregistrez vos changements.</p></div>
+</header>
+<div class="form-card admin-form-card">
+    <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+            <label for="title">Titre du cas clinique</label>
+            <input id="title" type="text" name="title" class="form-control" value="{{ challenge.title }}" required>
+        </div>
+        <div class="form-row form-row-three">
+            <div class="form-group">
+                <label for="category">Catégorie</label>
+                <select id="category" name="category" class="form-control" required>
+                    {% for category in categories %}
+                    <option value="{{ category }}" {% if challenge.category == category %}selected{% endif %}>{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="difficulty">Difficulté</label>
+                <select id="difficulty" name="difficulty" class="form-control" required>
+                    {% for difficulty in ["Facile", "Moyen", "Difficile", "Expert"] %}
+                    <option value="{{ difficulty }}" {% if challenge.difficulty == difficulty %}selected{% endif %}>{{ difficulty }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="points">Points</label>
+                <input id="points" type="number" name="points" class="form-control" min="1" value="{{ challenge.points }}" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="clinical_context">Contexte médical</label>
+            <textarea id="clinical_context" name="clinical_context" class="form-control" rows="4" required>{{ challenge.clinical_context }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="lab_data">Données de laboratoire</label>
+            <textarea id="lab_data" name="lab_data" class="form-control mono" rows="4" required>{{ challenge.lab_data }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="hint">Indice pédagogique</label>
+            <textarea id="hint" name="hint" class="form-control" rows="2" required>{{ challenge.hint }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="flag">Flag attendu</label>
+            <input id="flag" type="text" name="flag" class="form-control mono" value="{{ challenge.flag }}" pattern="M_LabCTF\{[A-Za-z0-9_.-]{1,110}\}" title="Format attendu : M_LabCTF{REPONSE}" required>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+            <a href="{{ url_for('admin_panel') }}" class="btn btn-quiet">Annuler</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

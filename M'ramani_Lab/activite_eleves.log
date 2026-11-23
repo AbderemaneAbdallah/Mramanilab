@@ -1,0 +1,11 @@
+[2026-11-20 11:52:39] Nouvelle inscription élève | Élève : xxxx (@xxxx) | Classe : xxxx | Email : xxxx@gmail.com
+[2026-11-20 12:03:51] Nouvelle inscription élève | Élève : CCCC (@CCCC) | Classe : CCCC | Email : CCCC@GMAIL
+[2026-11-20 12:05:57] Nouvelle inscription élève | Élève : AAAA (@AAAA) | Classe : AAAA | Email : AAAA0@GM
+[2026-11-20 12:08:40] Tentative échouée | Élève : AAAA (AAAA) sur 'Opération ARN Messager (Vaccin Nouvelle Génération)' -> Soumis : BIOCTF{SEQUENCE_ARNm_SANS_TIRETS}
+[2026-11-20 12:09:34] Tentative échouée | Élève : AAAA (AAAA) sur 'Opération ARN Messager (Vaccin Nouvelle Génération)' -> Soumis : BIOCTF{AGUGAAUCCGUA}
+[2026-11-20 12:09:36] Tentative échouée | Élève : AAAA (AAAA) sur 'Opération ARN Messager (Vaccin Nouvelle Génération)' -> Soumis : BIOCTF{AGUGAAUCCGUA}
+[2026-11-20 12:15:17] FLAG VALIDÉ (+100 pts) | Élève : xxxx (xxxx) a résolu 'Opération ARN Messager (Vaccin Nouvelle Génération)' avec BIOCTF{AUGCCUAAGUGA}
+[2026-11-20 12:19:59] FLAG VALIDÉ (+500 pts) | Élève : AAAA (AAAA) a résolu 'Super-Bactérie Nosocomiale & Antibiogramme' avec BIOCTF{VANCOMYCINE_24MM}
+[2026-11-20 14:27:41] Tentative échouée | Élève : Professeur SVT (Admin) (Enseignant) sur 'crypto' -> Soumis : vvv
+[2026-11-20 17:46:37] FLAG VALIDÉ (+200 pts) | Élève : xxxx (xxxx) a résolu 'Ciseaux Moléculaires CRISPR-Cas9 & Drépanocytose'.
+[2026-11-20 17:47:29] FLAG VALIDÉ (+250 pts) | Élève : xxxx (xxxx) a résolu 'IRM Fonctionnelle & AVC Ischémique'.

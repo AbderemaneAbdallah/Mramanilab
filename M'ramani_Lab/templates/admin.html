@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %}Administration · M'ramani_Lab{% endblock %}
+{% block content %}
+<header class="page-heading">
+    <div><p class="section-kicker">Espace professeur</p><h1>Administration</h1>
+    <p>Gérez les comptes élèves, consultez les résultats et préparez les prochains défis.</p></div>
+    <span class="heading-mark" aria-hidden="true">A.</span>
+</header>
+
+<section class="admin-section">
+<div class="section-heading"><div><p class="section-kicker">Comptes</p><h2>Élèves</h2></div><span class="section-count">{{ students|length }} inscrits</span></div>
+<div class="table-shell">
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Pseudo</th>
+            <th>Classe</th>
+            <th>Email</th>
+            <th>Score</th>
+            <th>Date d'inscription</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for s in students %}
+        <tr>
+            <td><strong>{{ s.full_name }}</strong></td>
+            <td class="mono admin-user">@{{ s.username }}</td>
+            <td>{{ s.classe }}</td>
+            <td class="mono">{{ s.email }}</td>
+            <td class="mono score-text">{{ s.score }} PTS</td>
+            <td class="mono date-text">{{ s.created_at }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6"><div class="empty-table">Aucun compte élève pour le moment.</div></td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+    </div>
+    </section>
+
+    <section class="admin-section">
+    <div class="section-heading"><div><p class="section-kicker">Activité récente</p><h2>Réponses reçues</h2></div><span class="section-count">100 dernières</span></div>
+    <div class="table-shell">
+    <table class="data-table">
+    <thead>
+        <tr>
+            <th>Date / Heure</th>
+            <th>Élève (Classe)</th>
+            <th>Défi</th>
+            <th>Réponse</th>
+            <th>Statut</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sub in recent_submissions %}
+        <tr>
+            <td class="mono attempt-time">{{ sub.solved_at }}</td>
+            <td>{{ sub.full_name }} <span class="muted-text">({{ sub.classe }})</span></td>
+            <td>{{ sub.challenge_title }}</td>
+            <td class="mono">{{ sub.submitted_flag }}</td>
+            <td>
+                {% if sub.is_correct %}
+                    <span class="badge badge-Facile">Correct · +{{ sub.points }} pts</span>
+                {% else %}
+                    <span class="badge badge-Expert">À revoir</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5"><div class="empty-table">Les réponses des élèves apparaîtront ici.</div></td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+</section>
+
+<section class="admin-section">
+<div class="section-heading"><div><p class="section-kicker">Contenu</p><h2>Défis publiés</h2></div><span class="section-count">{{ challenges|length }} sujets</span></div>
+<div class="table-shell">
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Défi</th>
+            <th>Catégorie</th>
+            <th>Difficulté</th>
+            <th>Points</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for challenge in challenges %}
+        <tr>
+            <td><strong>{{ challenge.title }}</strong></td>
+            <td>{{ challenge.category }}</td>
+            <td>{{ challenge.difficulty }}</td>
+            <td class="mono">{{ challenge.points }} PTS</td>
+            <td>
+                <div class="admin-actions">
+                    <a class="btn btn-outline" href="{{ url_for('edit_challenge', challenge_id=challenge.id) }}">Modifier</a>
+                      <form method="POST" action="{{ url_for('delete_challenge', challenge_id=challenge.id) }}"
+                          data-confirm="Supprimer ce défi ? Ses tentatives associées seront aussi effacées.">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn delete-button" type="submit">Supprimer</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="empty-table">Aucun défi publié.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+</section>
+
+<section class="admin-section">
+<div class="section-heading"><div><p class="section-kicker">Nouveau contenu</p><h2>Ajouter un défi</h2></div></div>
+<div class="form-card admin-form-card">
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+            <label for="title">Titre</label>
+            <input id="title" type="text" name="title" class="form-control" required>
+        </div>
+        <div class="form-row form-row-three">
+            <div class="form-group">
+                <label for="category">Thème</label>
+                <select id="category" name="category" class="form-control" required>
+                    {% for category in categories %}
+                    <option value="{{ category }}">{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="difficulty">Niveau</label>
+                <select id="difficulty" name="difficulty" class="form-control" required>
+                    <option>Facile</option>
+                    <option>Moyen</option>
+                    <option>Difficile</option>
+                    <option>Expert</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="points">Points</label>
+                <input id="points" type="number" name="points" class="form-control" min="1" value="200" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="clinical_context">Contexte</label>
+            <textarea id="clinical_context" name="clinical_context" class="form-control" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="lab_data">Données à analyser</label>
+            <textarea id="lab_data" name="lab_data" class="form-control mono" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="hint">Indice</label>
+            <input id="hint" type="text" name="hint" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="flag">Réponse attendue</label>
+            <input id="flag" type="text" name="flag" class="form-control mono" placeholder="M_LabCTF{REPONSE}" pattern="M_LabCTF\{[A-Za-z0-9_.-]{1,110}\}" title="Format attendu : M_LabCTF{REPONSE}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Enregistrer le défi</button>
+    </form>
+</div>
+</section>
+{% endblock %}

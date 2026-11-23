@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Créer un compte · M'ramani_Lab{% endblock %}
+{% block content %}
+<section class="auth-layout auth-layout-register">
+    <div class="auth-intro">
+        <p class="eyebrow"><span class="eyebrow-dot"></span> Un profil, vos découvertes</p>
+        <h1>La curiosité<br>fait le <span>reste.</span></h1>
+        <p>Créez votre compte pour retrouver vos défis, vos résultats et votre place dans le classement.</p>
+    </div>
+    <div class="form-card auth-card">
+        <div class="form-heading">
+            <p class="section-kicker">Inscription</p>
+            <h2>Créer votre profil</h2>
+            <p>Les champs marqués sont nécessaires pour vous inscrire.</p>
+        </div>
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="full_name">Nom et prénom</label>
+                <input id="full_name" type="text" name="full_name" class="form-control" placeholder="Ex. Abdou Bacar" autocomplete="name" required>
+            </div>
+            <div class="form-group">
+                <label for="classe">Classe</label>
+                <input id="classe" type="text" name="classe" class="form-control" placeholder="Ex. 4e A" required>
+            </div>
+            <div class="form-group">
+                <label for="username">Nom d’utilisateur</label>
+                <input id="username" type="text" name="username" class="form-control" placeholder="Ex. abdou_b" autocomplete="username" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Adresse e-mail</label>
+                <input id="email" type="email" name="email" class="form-control" placeholder="vous@exemple.fr" autocomplete="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input id="password" type="password" name="password" class="form-control" autocomplete="new-password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-wide">Créer mon compte <span aria-hidden="true">→</span></button>
+        </form>
+        <p class="auth-switch">Vous avez déjà un compte ? <a href="{{ url_for('login') }}">Se connecter</a></p>
+    </div>
+</section>
+{% endblock %}

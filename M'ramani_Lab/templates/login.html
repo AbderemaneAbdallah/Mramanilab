@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Connexion · M'ramani_Lab{% endblock %}
+{% block content %}
+<section class="auth-layout">
+    <div class="auth-intro">
+        <p class="eyebrow"><span class="eyebrow-dot"></span> Votre espace de travail</p>
+        <h1>Ravi de vous<br><span>retrouver.</span></h1>
+        <p>Connectez-vous pour reprendre vos activités et suivre votre progression.</p>
+    </div>
+    <div class="form-card auth-card">
+        <div class="form-heading">
+            <p class="section-kicker">Connexion</p>
+            <h2>Accéder à M'ramani_Lab</h2>
+            <p>Entrez les identifiants de votre compte.</p>
+        </div>
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="username">Nom d’utilisateur</label>
+                <input id="username" type="text" name="username" class="form-control" autocomplete="username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input id="password" type="password" name="password" class="form-control" autocomplete="current-password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-wide">Se connecter <span aria-hidden="true">→</span></button>
+        </form>
+        <p class="auth-switch">Pas encore de compte ? <a href="{{ url_for('register') }}">Créer un profil</a></p>
+    </div>
+</section>
+{% endblock %}

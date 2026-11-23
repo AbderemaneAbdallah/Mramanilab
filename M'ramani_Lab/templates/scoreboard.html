@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Classement · M'ramani_Lab{% endblock %}
+{% block content %}
+<header class="page-heading">
+    <div><p class="section-kicker">Progression collective</p><h1>Le classement</h1>
+    <p>Les résultats des élèves, selon les points obtenus sur les défis.</p></div>
+    <span class="heading-mark" aria-hidden="true">#</span>
+</header>
+<div class="table-shell">
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Rang</th>
+            <th>Élève</th>
+            <th>Classe</th>
+            <th>Défis terminés</th>
+            <th>Score</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in leaderboard %}
+        <tr {% if student.id == session.get('user_id') %}class="current-user-row"{% endif %}>
+            <td><span class="rank-number {% if loop.index <= 3 %}rank-{{ loop.index }}{% endif %}">{{ "%02d"|format(loop.index) }}</span></td>
+            <td><strong>{{ student.full_name }}</strong><span class="table-subtext">{{ student.username }}</span></td>
+            <td>{{ student.classe }}</td>
+            <td>{{ student.solved_count }} <span class="table-subtext">/ {{ total_challenges }}</span></td>
+            <td><span class="score-pill">{{ student.score }} pts</span></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5"><div class="empty-table">Aucun élève n’est encore inscrit.</div></td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

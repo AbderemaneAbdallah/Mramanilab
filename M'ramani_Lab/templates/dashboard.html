@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block title %}Mes défis · M'ramani_Lab{% endblock %}
+{% block content %}
+<section class="page-heading dashboard-heading">
+    <div>
+        <p class="section-kicker">Espace élève · {{ session.get('classe') }}</p>
+        <h1>Bonjour {{ session.get('full_name') }}.</h1>
+        <p>Choisissez un sujet et prenez le temps d’observer les indices.</p>
+    </div>
+    <span class="heading-mark" aria-hidden="true">B.</span>
+</section>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Votre score</div>
+        <div class="stat-value">{{ user_score }} <span>pts</span></div>
+        <div class="stat-detail">Points cumulés</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Classement</div>
+        <div class="stat-value">{% if user_rank == '-' %}—{% else %}{{ user_rank }}<span>e</span>{% endif %}</div>
+        <div class="stat-detail">Parmi {{ total_students }} élèves</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Défis terminés</div>
+        <div class="stat-value">{{ solved_ids|length }}<span> / {{ challenges|length }}</span></div>
+        <div class="stat-detail">Continuez à votre rythme</div>
+    </div>
+</div>
+
+<div class="section-heading">
+    <div><p class="section-kicker">À explorer</p><h2>Les défis</h2></div>
+    <span class="section-count">{{ challenges|length }} sujets</span>
+</div>
+
+<div class="challenges-grid">
+    {% for ch in challenges %}
+    {% set is_solved = ch.id in solved_ids %}
+        <article class="challenge-card {% if is_solved %}solved{% endif %}"
+                 data-challenge="{{ ch | tojson | forceescape }}"
+                 data-solved="{{ 'true' if is_solved else 'false' }}"
+                 data-open-challenge role="button" tabindex="0" aria-haspopup="dialog">
+            <div class="challenge-card-top">
+                <span class="badge badge-{{ ch.difficulty }}">{{ ch.difficulty }}</span>
+                <span class="challenge-points">{{ ch.points }} <small>pts</small></span>
+            </div>
+            <p class="challenge-category">{{ ch.category }}</p>
+            <h3>{{ ch.title }}</h3>
+            <p class="challenge-summary">{{ ch.clinical_context[:150] }}{% if ch.clinical_context|length > 150 %}…{% endif %}</p>
+            <div class="challenge-card-bottom">
+                <span>{{ solve_counts.get(ch.id, 0) }} résolution(s)</span>
+                {% if is_solved %}<span class="solved-label">Terminé</span>
+                {% else %}<span class="card-link">Voir le défi <span aria-hidden="true">→</span></span>{% endif %}
+            </div>
+        </article>
+    {% else %}
+        <div class="empty-state"><span class="section-kicker">Bientôt disponible</span><h3>Aucun défi pour le moment</h3><p>Revenez un peu plus tard pour découvrir les prochains sujets.</p></div>
+    {% endfor %}
+</div>
+
+<div class="modal-backdrop" id="challengeModal" role="presentation">
+    <section class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-heading">
+            <div><span id="modalCategory" class="challenge-category"></span><h2 id="modalTitle"></h2></div>
+            <button class="icon-button" type="button" data-close-modal aria-label="Fermer">×</button>
+        </div>
+        <p id="modalContext" class="modal-context"></p>
+        <div class="lab-terminal" id="modalLabData"></div>
+        <details class="hint-panel">
+            <summary>Afficher l’indice</summary>
+            <p id="modalHint"></p>
+        </details>
+        <div id="flagFormArea">
+            <div class="flag-entry">
+                <input type="text" id="flagInput" class="form-control mono" placeholder="M_LabCTF{VOTRE_REPONSE}" aria-label="Votre réponse">
+                <button id="submitFlagButton" class="btn btn-primary" type="button">Vérifier</button>
+            </div>
+            <p id="flagFeedback" class="flag-feedback" aria-live="polite"></p>
+        </div>
+    </section>
+</div>
+
+<script nonce="{{ csp_nonce() }}">
+let currentChallengeId = null;
+let successAudioContext = null;
+
+document.querySelectorAll('[data-open-challenge]').forEach((card) => {
+    card.addEventListener('click', () => openChallenge(card));
+    card.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openChallenge(card);
+        }
+    });
+});
+
+document.querySelector('[data-close-modal]').addEventListener('click', closeModal);
+document.getElementById('submitFlagButton').addEventListener('click', submitFlag);
+document.getElementById('challengeModal').addEventListener('click', (event) => {
+    if (event.target.id === 'challengeModal') closeModal();
+});
+
+function openChallenge(card) {
+    const ch = JSON.parse(card.dataset.challenge);
+    const isSolved = card.dataset.solved === 'true';
+    currentChallengeId = ch.id;
+    document.getElementById('modalCategory').innerText = ch.category + " • " + ch.points + " PTS";
+    document.getElementById('modalTitle').innerText = ch.title;
+    document.getElementById('modalContext').innerText = ch.clinical_context;
+    document.getElementById('modalLabData').innerText = ch.lab_data;
+    document.getElementById('modalHint').innerText = ch.hint;
+    document.getElementById('flagInput').value = "";
+    const feedback = document.getElementById('flagFeedback');
+    feedback.textContent = isSolved ? 'Vous avez déjà terminé ce défi.' : '';
+    feedback.className = isSolved ? 'flag-feedback is-success' : 'flag-feedback';
+    document.getElementById('challengeModal').classList.add('active');
+    document.getElementById('flagInput').focus();
+}
+
+function closeModal() {
+    document.getElementById('challengeModal').classList.remove('active');
+}
+
+async function submitFlag() {
+    const flag = document.getElementById('flagInput').value;
+    const feedback = document.getElementById('flagFeedback');
+    if (!flag.trim()) return;
+
+    // Create/resume audio directly from the user's click so mobile browsers allow playback.
+    unlockSuccessAudio();
+
+    try {
+        const response = await fetch('/submit_flag', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ challenge_id: currentChallengeId, flag: flag })
+        });
+        const res = await response.json();
+        feedback.textContent = res.message;
+        feedback.className = `flag-feedback ${res.status === 'success' ? 'is-success' : res.status === 'info' ? 'is-info' : 'is-error'}`;
+        if (res.status === 'success') {
+            playSuccessSound();
+            setTimeout(() => location.reload(), 1200);
+        }
+    } catch (error) {
+        feedback.textContent = 'Impossible de vérifier la réponse. Vérifiez votre connexion et réessayez.';
+        feedback.className = 'flag-feedback is-error';
+    }
+}
+
+function unlockSuccessAudio() {
+    if (!successAudioContext) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        successAudioContext = new AudioContextClass();
+    }
+    if (successAudioContext.state === 'suspended') {
+        successAudioContext.resume().catch(() => {});
+    }
+}
+
+function playSuccessSound() {
+    if (!successAudioContext) return;
+    const notes = [523.25, 659.25, 783.99, 1046.5];
+    const startTime = successAudioContext.currentTime + 0.03;
+
+    notes.forEach((frequency, index) => {
+        const noteStart = startTime + index * 0.13;
+        const oscillator = successAudioContext.createOscillator();
+        const volume = successAudioContext.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(frequency, noteStart);
+        volume.gain.setValueAtTime(0.0001, noteStart);
+        volume.gain.exponentialRampToValueAtTime(0.12, noteStart + 0.02);
+        volume.gain.exponentialRampToValueAtTime(0.0001, noteStart + 0.24);
+        oscillator.connect(volume);
+        volume.connect(successAudioContext.destination);
+        oscillator.start(noteStart);
+        oscillator.stop(noteStart + 0.25);
+    });
+}
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeModal();
+});
+</script>
+{% endblock %}

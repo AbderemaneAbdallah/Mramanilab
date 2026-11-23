@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}M'ramani_Lab — Sciences, idées et technologies{% endblock %}
+{% block content %}
+<section class="hero">
+    <div class="hero-copy">
+        <p class="eyebrow"><span class="eyebrow-dot"></span> Groupe Scolaire Generation 2000 · M'ramani</p>
+        <h1>Apprendre.<br>Explorer. <span>Inventer.</span></h1>
+        <p class="hero-description">M'ramani_Lab est une plateforme pédagogique en partenariat avec le Groupe Scolaire Generation 2000 de M'ramani. Elle relie sciences, mathématiques, physique, informatique et technologies de pointe — robotique, électronique et intelligence artificielle — pour apprendre en expérimentant. Les premiers défis portent sur les sciences du vivant.</p>
+        <div class="hero-actions">
+            <a href="{{ url_for('register') }}" class="btn btn-primary">Commencer</a>
+            <a href="{{ url_for('login') }}" class="btn btn-quiet">J’ai déjà un compte <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="hero-note"><span class="note-line"></span> Des défis à résoudre, à son rythme.</div>
+    </div>
+    <div class="hero-art" aria-label="Illustration abstraite de cellules et de molécules" role="img">
+        <div class="art-orbit orbit-one"></div>
+        <div class="art-orbit orbit-two"></div>
+        <div class="art-core"><span>M'ramani</span><strong>Lab</strong></div>
+        <span class="art-node node-one"></span>
+        <span class="art-node node-two"></span>
+        <span class="art-node node-three"></span>
+        <span class="art-caption caption-one">Observer</span>
+        <span class="art-caption caption-two">Comprendre</span>
+    </div>
+</section>
+
+<section class="topic-strip" aria-label="Disciplines et domaines d’exploration">
+    <p>Explorer plusieurs domaines</p>
+    <span>Sciences du vivant</span><span>Mathématiques</span><span>Physique</span><span>Informatique</span><span>Technologie</span><span>Robotique</span><span>Électronique</span><span>Intelligence artificielle</span>
+</section>
+{% endblock %}
